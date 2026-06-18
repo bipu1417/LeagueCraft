@@ -28,12 +28,12 @@ import {
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyB4pV8z6KqO0ixeuPClgY6fHDvm-o5ApjE",
+  apiKey: "",
   authDomain: "pundag-premier-league.firebaseapp.com",
   projectId: "pundag-premier-league",
   storageBucket: "pundag-premier-league.appspot.com",  // ✅ FIXED: corrected domain
-  messagingSenderId: "318036804333",
-  appId: "1:318036804333:web:e4df48962c2bf0b2edc2e4"
+  messagingSenderId: "",
+  appId: ""
 };
 
 // Initialize Firebase
