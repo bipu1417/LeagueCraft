@@ -1,0 +1,47 @@
+{
+  "name": "leaguecraft",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "autoprefixer": "^10.4.20",
+    "firebase": "^12.6.0",
+    "framer-motion": "^11.2.10",
+    "lucide-react": "^0.553.0",
+    "postcss": "^8.5.10",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^6.30.3",
+    "react-scripts": "5.0.1",
+    "tailwindcss": "^3.4.13"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "deploy": "npm run build && npx firebase deploy --only hosting --project leaguecraft-aux",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "description": "This project was bootstrapped with Create React App.",
+  "main": "postcss.config.js",
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

@@ -1,0 +1,30 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">LeagueCraft logo</title>
+  <desc id="desc">A gold shield with an arena crown, auction gavel and crafted LC monogram.</desc>
+  <defs>
+    <linearGradient id="shield" x1="94" y1="66" x2="422" y2="452" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FDE68A"/>
+      <stop offset="0.45" stop-color="#FACC15"/>
+      <stop offset="1" stop-color="#16A34A"/>
+    </linearGradient>
+    <linearGradient id="inner" x1="151" y1="120" x2="369" y2="392" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#111827"/>
+      <stop offset="1" stop-color="#030712"/>
+    </linearGradient>
+    <filter id="shadow" x="46" y="40" width="420" height="436" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="18" stdDeviation="22" flood-color="#000000" flood-opacity="0.35"/>
+    </filter>
+  </defs>
+  <rect width="512" height="512" rx="112" fill="#030712"/>
+  <g filter="url(#shadow)">
+    <path d="M256 55L414 112V237C414 335 351 421 256 457C161 421 98 335 98 237V112L256 55Z" fill="url(#shield)"/>
+    <path d="M256 92L381 137V237C381 318 331 387 256 419C181 387 131 318 131 237V137L256 92Z" fill="url(#inner)"/>
+  </g>
+  <path d="M163 178L204 143L242 178L289 133L350 178V213H163V178Z" fill="#FACC15"/>
+  <path d="M182 232H224V329H283V365H182V232Z" fill="#F8FAFC"/>
+  <path d="M293 232H346V268H319V329H346V365H293C272 365 255 348 255 327V270C255 249 272 232 293 232Z" fill="#F8FAFC"/>
+  <path d="M334 279L369 244L389 264L354 299L334 279Z" fill="#22C55E"/>
+  <path d="M358 303L393 268L408 283L373 318L358 303Z" fill="#22C55E"/>
+  <path d="M326 377H381" stroke="#FACC15" stroke-width="18" stroke-linecap="round"/>
+  <path d="M159 396C193 414 222 424 256 424C290 424 319 414 353 396" stroke="#FACC15" stroke-width="14" stroke-linecap="round"/>
+</svg>

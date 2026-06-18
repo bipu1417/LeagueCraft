@@ -1,0 +1,178 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return signedIn() && request.auth.uid == userId;
+    }
+
+    function isCreator() {
+      return signedIn() && request.auth.token.email == "desiindianboyz@gmail.com";
+    }
+
+    function currentUser() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+
+    function hasPremiumAccess() {
+      return signedIn()
+        && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+        && (
+          isCreator()
+          || currentUser().role == "platformAdmin"
+          || (
+            currentUser().subscription.status == "active"
+            && currentUser().subscription.paymentStatus == "paid"
+            && currentUser().subscription.validUntil > request.time
+          )
+        );
+    }
+
+    function ownsIndexedTournament(tournamentId) {
+      return signedIn()
+        && exists(/databases/$(database)/documents/tournaments/$(tournamentId))
+        && get(/databases/$(database)/documents/tournaments/$(tournamentId)).data.ownerId == request.auth.uid;
+    }
+
+    function ownsYearTournament(year, tournamentId) {
+      return signedIn()
+        && exists(/databases/$(database)/documents/years/$(year)/tournaments/$(tournamentId))
+        && get(/databases/$(database)/documents/years/$(year)/tournaments/$(tournamentId)).data.ownerId == request.auth.uid;
+    }
+
+    function canManageIndexedTournament(tournamentId) {
+      return hasPremiumAccess() && ownsIndexedTournament(tournamentId);
+    }
+
+    function canManageYearTournament(year, tournamentId) {
+      return hasPremiumAccess() && ownsYearTournament(year, tournamentId);
+    }
+
+    function createsFreeUser(userId) {
+      return isOwner(userId)
+        && request.resource.data.role == "user"
+        && request.resource.data.subscription.status == "inactive"
+        && request.resource.data.subscription.paymentStatus == "unpaid";
+    }
+
+    function submitsOwnSubscriptionRequest(userId) {
+      return isOwner(userId)
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(["email", "role", "subscription", "updatedAt"])
+        && request.resource.data.role == "user"
+        && request.resource.data.subscription.status == "pending"
+        && request.resource.data.subscription.paymentStatus == "pending"
+        && request.resource.data.subscription.paymentRefNo is string
+        && request.resource.data.subscription.paymentRefNo.size() >= 6;
+    }
+
+    match /users/{userId} {
+      allow create: if createsFreeUser(userId);
+      allow read: if isOwner(userId) || isCreator();
+      allow update: if submitsOwnSubscriptionRequest(userId) || isCreator();
+      allow delete: if isCreator();
+    }
+
+    match /subscriptionRequests/{requestId} {
+      allow create: if signedIn()
+        && requestId == request.auth.uid
+        && request.resource.data.userId == request.auth.uid
+        && request.resource.data.userEmail == request.auth.token.email
+        && request.resource.data.status == "pending"
+        && request.resource.data.paymentStatus == "pending"
+        && request.resource.data.paymentRefNo is string
+        && request.resource.data.paymentRefNo.size() >= 6;
+      allow read: if isCreator() || (signedIn() && resource.data.userId == request.auth.uid);
+      allow update: if isCreator()
+        || (
+          signedIn()
+          && requestId == request.auth.uid
+          && request.resource.data.userId == request.auth.uid
+          && request.resource.data.userEmail == request.auth.token.email
+          && request.resource.data.status == "pending"
+          && request.resource.data.paymentStatus == "pending"
+          && request.resource.data.paymentRefNo is string
+          && request.resource.data.paymentRefNo.size() >= 6
+        );
+      allow delete: if isCreator();
+    }
+
+    match /notificationRequests/{notificationId} {
+      allow create: if signedIn();
+      allow read: if isCreator()
+        || (
+          signedIn()
+          && (
+            resource.data.recipientUserId == request.auth.uid
+            || resource.data.senderId == request.auth.uid
+          )
+        );
+      allow update, delete: if isCreator();
+    }
+
+    match /tournaments/{tournamentId} {
+      allow read: if signedIn();
+      allow create: if hasPremiumAccess() && request.resource.data.ownerId == request.auth.uid;
+      allow update, delete: if canManageIndexedTournament(tournamentId);
+    }
+
+    match /players/{playerId} {
+      allow read: if signedIn();
+      allow create, update, delete: if isCreator();
+    }
+
+    match /teamdetails/{teamId} {
+      allow read: if signedIn();
+      allow create, update, delete: if isCreator();
+    }
+
+    match /AuctionDetails/{auctionId} {
+      allow read: if signedIn();
+      allow create, update, delete: if isCreator();
+    }
+
+    match /fixtures/{tournamentId} {
+      allow read: if signedIn();
+      allow create, update, delete: if isCreator();
+    }
+
+    match /years/{year}/tournaments/{tournamentId} {
+      allow read: if signedIn();
+      allow create: if hasPremiumAccess() && request.resource.data.ownerId == request.auth.uid;
+      allow update, delete: if canManageYearTournament(year, tournamentId);
+
+      match /players/{playerId} {
+        allow read: if signedIn();
+        allow create, update, delete: if canManageYearTournament(year, tournamentId);
+      }
+
+      match /pendingPlayers/{playerId} {
+        allow create: if signedIn();
+        allow read, update, delete: if canManageYearTournament(year, tournamentId);
+      }
+
+      match /teamdetails/{teamId} {
+        allow read: if signedIn();
+        allow create, update, delete: if canManageYearTournament(year, tournamentId);
+      }
+
+      match /AuctionDetails/{auctionId} {
+        allow read: if signedIn();
+        allow create, update, delete: if canManageYearTournament(year, tournamentId);
+      }
+
+      match /fixtures/{fixtureId} {
+        allow read: if signedIn();
+        allow create, update, delete: if canManageYearTournament(year, tournamentId);
+      }
+
+      match /{subCollection}/{documentId} {
+        allow read: if signedIn();
+        allow create, update, delete: if canManageYearTournament(year, tournamentId);
+      }
+    }
+  }
+}
